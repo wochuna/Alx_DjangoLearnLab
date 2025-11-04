@@ -3,7 +3,7 @@ from bookshelf.models import Book
 
 Book.objects.create(title="1984", author="George Orwell", publication_year=1949)
 
-Theis creates a book with title 1984 by George Orwell published in 1949
+This creates a book with title 1984 by George Orwell published in 1949
 
 # Retrieve all books
 from bookshelf.models import Book
