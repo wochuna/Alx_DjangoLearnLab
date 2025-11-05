@@ -31,4 +31,4 @@ book.delete() # Delete
 all_books = Book.objects.all()
 print(all_books) # Confirm deletion
 
-This deletes the book titled Nineteen Eighty-Four
+This deletes the book titled Nineteen Eighty-Four and confirms deletion
