@@ -16,11 +16,13 @@ def books_by_author(author_name):
     except ObjectDoesNotExist:
         print(f"No author found with name: {author_name}")
         return
-    books = author.books.all() 
-    print(f"Books by {author.name}:")
-    for b in books:
-        print(f"- {b.title} (published by author id {b.author_id})")
+    books_via_filter = Book.objects.filter(author=author)
+    print(f"\nBooks by {author.name} (via Book.objects.filter):")
+    for b in books_via_filter:
+        print(f"- {b.title}")
 
+    
+    
 def books_in_library(library_name):
     try:
         library = Library.objects.get(name=library_name)
