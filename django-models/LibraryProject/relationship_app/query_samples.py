@@ -42,11 +42,10 @@ def librarian_for_library(library_name):
         return
     # OneToOne
     try:
-        librarian = library.librarian
+        librarian_direct = Librarian.objects.get(library=library)
+        print(f"Librarian for '{library.name}' (via Librarian.objects.get): {librarian_direct.name}")
     except ObjectDoesNotExist:
-        print(f"No librarian assigned to library '{library.name}'")
-        return
-    print(f"Librarian for '{library.name}': {librarian.name}")
+        print(f"No librarian found for library '{library.name}' via Librarian.objects.get")
 
 if __name__ == "__main__":
     # Example usages
