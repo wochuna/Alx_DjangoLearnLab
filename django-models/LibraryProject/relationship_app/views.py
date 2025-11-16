@@ -5,6 +5,7 @@ from .models import Library
 from django.contrib.auth import login
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import permission_required
 
 # Function-based view to list all books
 def list_books(request):
@@ -33,3 +34,10 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})
 
+def is_admin(user):
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
+
+def user_role(user):
+    def check_role(role):
+        return hasattr(user, 'userprofile') and user.userprofile.role == role
+    return check_role
