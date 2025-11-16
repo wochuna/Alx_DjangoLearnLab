@@ -3,6 +3,7 @@ from django.views.generic.detail import DetailView
 from .models import Book
 from .models import Library
 from django.contrib.auth import login
+from django.contrib.auth.views import LogoutView
 from django.contrib.auth.forms import UserCreationForm
 
 # Function-based view to list all books
@@ -21,7 +22,7 @@ def index(request):
     return render(request, 'relationship_app/index.html')   
 
 # Registrarion View
-def register(request):  
+def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -30,4 +31,5 @@ def register(request):
             return redirect('relationship_app:list_books')
     else:
         form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})  
+    return render(request, 'relationship_app/register.html', {'form': form})
+
