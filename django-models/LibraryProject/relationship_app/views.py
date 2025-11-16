@@ -9,6 +9,17 @@ from django.contrib.auth.decorators import user_passes_test,login_required
 from .models import UserProfile
 
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import user_passes_test
+
+def _has_role(user, role):
+    return user.is_authenticated and user.userprofile.role == role
+
+@user_passes_test(lambda u: _has_role(u, 'Admin'), login_url='login')
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
+
+
 # Function-based view to list all books
 def list_books(request):
     books = Book.objects.all()
