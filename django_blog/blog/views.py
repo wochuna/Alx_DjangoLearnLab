@@ -8,6 +8,7 @@ from .serializers import PostSerializer
 from django.urls import reverse_lazy
 from . models import Post, Comment, Tag
 from . forms import PostForm, CommentForm
+from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 
@@ -110,3 +111,30 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment_confirm_delete.html'
+
+def search_posts(request):
+    query = request.GET.get("q")
+    results = []
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(tags__name__icontains=query) |
+            Q(content__icontains=query) 
+            
+        ).distinct()
+    else:
+        posts = Post.objects.all()
+        
+    serializer = PostSerializer(results, many=True)     
+    return render(request, "blog/search_results.html", {"results": results, "query": query})
+
+
+class PostByTagListView(ListView):
+
+    model = Post
+    template_name = "blog/posts_by_tag.html"
+    context_object_name = "posts"
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        return Post.objects.filter(tags__slug=tag_slug).distinct()
