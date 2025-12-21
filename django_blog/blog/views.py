@@ -3,6 +3,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm as RegisterForm
 from django.contrib import messages
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from .serializers import PostSerializer
+from django.urls import reverse_lazy
+from . models import Post, Comment, Tag
+from . forms import PostForm, CommentForm
 
 
 
@@ -45,3 +50,38 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     return render(request, "blog/profile.html", {"user": request.user})
+
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-published_date']
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+  
+class PostCreateView(CreateView):
+    model = Post
+    form_class = PostForm
+    template = 'blog/post_form.html'
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template = 'blog/post_form.html'
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
+
+
+class PostDeleteView(DeleteView):
+    model = Post
+    success_url = reverse_lazy("post_list")
+    template_name = 'blog/post_confirm_delete.html'
+
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
