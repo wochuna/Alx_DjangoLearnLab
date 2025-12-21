@@ -1,0 +1,14 @@
+{% extends "blog/base.html" %}
+
+{% block title %}Write a Post{% endblock %}
+
+{% block content %}
+
+    <h1>{{ view.title|default:'Write a Post' }}</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
