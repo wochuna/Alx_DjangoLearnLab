@@ -1,8 +1,6 @@
-from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from .serializers import UserRegistrationSerializer, UserLoginSerializer
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, create_token_for_user
 
 class UserRegistrationView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -17,5 +15,6 @@ class UserLoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        token, _ = Token.objects.get_or_create(user=user)
+        token = create_token_for_user(user)
+
         return Response({'token': token.key}, status=status.HTTP_200_OK)
