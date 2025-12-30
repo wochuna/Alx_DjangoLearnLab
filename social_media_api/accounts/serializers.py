@@ -1,43 +1,37 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from django.contrib.auth import get_user_model, authenticate
 from rest_framework.authtoken.models import Token
 
-User = get_user_model()
+User = get_user_model().objects.create_user
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
+class RegistrationSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    verify_password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'bio', 'profile_picture']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = ('id','username','email','password','role')
+    
+    def validate(self, data):
+        if data['password'] != data['verify_password']:
+          raise serializers.ValidationError("Passwords must match!")
+        validate_password(data['password'])
+        return data
 
     def create(self, validated_data):
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])
+        validated_data.pop('verify_password')
+        password = validated_data.pop('password')
+
+        user = User.objects.create_user(**validated_data)
+        user.set_password(password)
         user.save()
+
+        Token.objects.create(user=user)
         return user
 
 
-class UserLoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
-    password = serializers.CharField()
-
-    def validate(self, attrs):
-        user = authenticate(**attrs)
-        if user is None:
-            raise serializers.ValidationError('Invalid credentials')
-        return user
-
-
-class UserTokenSerializer(serializers.ModelSerializer):
-    token = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ['token']
-
-
-def create_token_for_user(user):
-    token, _ = Token.objects.get_or_create(user=user)
-    return token
+    password = serializers.CharField(write_only=True)
